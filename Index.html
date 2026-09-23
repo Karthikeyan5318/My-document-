@@ -18,6 +18,50 @@ body {
     font-family: Arial, sans-serif;
 }
 
+/* Password screen */
+#login {
+    position: fixed;
+    inset: 0;
+    background: #222;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+.login-box {
+    background: #f5ead7;
+    padding: 30px;
+    width: 90%;
+    max-width: 350px;
+    text-align: center;
+    border-radius: 12px;
+    box-shadow: 0 5px 25px rgba(0,0,0,0.5);
+}
+
+.login-box h2 {
+    margin-top: 0;
+}
+
+.login-box input {
+    width: 100%;
+    padding: 12px;
+    margin: 15px 0;
+    font-size: 18px;
+    text-align: center;
+}
+
+.login-box button {
+    padding: 12px 25px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+#error {
+    color: #b00020;
+    display: none;
+}
+
 #book {
     width: 100vw;
     height: 100vh;
@@ -39,11 +83,58 @@ body {
 
 <body>
 
+<!-- PASSWORD -->
+<div id="login">
+
+    <div class="login-box">
+
+        <h2>🔐 My Diary</h2>
+
+        <p>Enter Password</p>
+
+        <input
+            type="password"
+            id="password"
+            placeholder="Password"
+        >
+
+        <button onclick="unlock()">Open Diary</button>
+
+        <p id="error">Wrong password</p>
+
+    </div>
+
+</div>
+
+
+<!-- FLIPBOOK -->
 <div id="book"></div>
+
 
 <script src="https://cdn.jsdelivr.net/npm/page-flip@2.0.7/dist/js/page-flip.browser.js"></script>
 
 <script>
+
+const PASSWORD = "250502";
+
+function unlock() {
+
+    const entered =
+        document.getElementById("password").value;
+
+    if (entered === PASSWORD) {
+
+        document.getElementById("login").style.display = "none";
+
+        loadPages();
+
+    } else {
+
+        document.getElementById("error").style.display = "block";
+
+    }
+}
+
 
 const USERNAME = "karthikeyan5318";
 const REPOSITORY = "My-document-";
@@ -51,6 +142,7 @@ const REPOSITORY = "My-document-";
 const book = document.getElementById("book");
 
 const pageFlip = new St.PageFlip(book, {
+
     width: 450,
     height: 650,
 
@@ -69,6 +161,7 @@ const pageFlip = new St.PageFlip(book, {
     maxShadowOpacity: 0.5,
 
     flippingTime: 900
+
 });
 
 
@@ -82,7 +175,7 @@ async function loadPages() {
         const response = await fetch(url);
 
         if (!response.ok) {
-            throw new Error("GitHub files could not be loaded");
+            throw new Error("Unable to load files");
         }
 
         const files = await response.json();
@@ -101,8 +194,10 @@ async function loadPages() {
             );
 
         if (images.length === 0) {
+
             book.innerHTML =
             "<p style='color:white;text-align:center;padding:30px'>No pages found.</p>";
+
             return;
         }
 
@@ -125,6 +220,7 @@ async function loadPages() {
             book.appendChild(page);
 
             pageElements.push(page);
+
         });
 
         pageFlip.loadFromHTML(pageElements);
@@ -132,13 +228,12 @@ async function loadPages() {
     } catch (error) {
 
         book.innerHTML =
-        "<p style='color:white;text-align:center;padding:30px'>Unable to load the diary.</p>";
+        "<p style='color:white;text-align:center;padding:30px'>Unable to load diary.</p>";
 
         console.error(error);
+
     }
 }
-
-loadPages();
 
 </script>
 
