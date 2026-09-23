@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>My Diary</title>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    background: #222;
+    overflow: hidden;
+    font-family: Arial, sans-serif;
+}
+
+#book {
+    width: 100vw;
+    height: 100vh;
+}
+
+.page {
+    background: #f5ead7;
+    overflow: hidden;
+}
+
+.page img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+}
+</style>
+</head>
+
+<body>
+
+<div id="book"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/page-flip@2.0.7/dist/js/page-flip.browser.js"></script>
+
+<script>
+
+const USERNAME = "karthikeyan5318";
+const REPOSITORY = "My-document-";
+
+const book = document.getElementById("book");
+
+const pageFlip = new St.PageFlip(book, {
+    width: 450,
+    height: 650,
+
+    size: "stretch",
+
+    minWidth: 280,
+    maxWidth: 1000,
+
+    minHeight: 400,
+    maxHeight: 1400,
+
+    showCover: true,
+
+    mobileScrollSupport: false,
+
+    maxShadowOpacity: 0.5,
+
+    flippingTime: 900
+});
+
+
+async function loadPages() {
+
+    try {
+
+        const url =
+        `https://api.github.com/repos/${USERNAME}/${REPOSITORY}/contents/`;
+
+        const response = await fetch(url);
+
+        if (!response.ok) {
+            throw new Error("GitHub files could not be loaded");
+        }
+
+        const files = await response.json();
+
+        const images = files
+            .filter(file =>
+                file.type === "file" &&
+                /\.(jpg|jpeg|png|webp)$/i.test(file.name)
+            )
+            .sort((a, b) =>
+                a.name.localeCompare(
+                    b.name,
+                    undefined,
+                    { numeric: true }
+                )
+            );
+
+        if (images.length === 0) {
+            book.innerHTML =
+            "<p style='color:white;text-align:center;padding:30px'>No pages found.</p>";
+            return;
+        }
+
+        const pageElements = [];
+
+        images.forEach(file => {
+
+            const page = document.createElement("div");
+
+            page.className = "page";
+
+            const image = document.createElement("img");
+
+            image.src = file.download_url;
+
+            image.alt = "Diary page";
+
+            page.appendChild(image);
+
+            book.appendChild(page);
+
+            pageElements.push(page);
+        });
+
+        pageFlip.loadFromHTML(pageElements);
+
+    } catch (error) {
+
+        book.innerHTML =
+        "<p style='color:white;text-align:center;padding:30px'>Unable to load the diary.</p>";
+
+        console.error(error);
+    }
+}
+
+loadPages();
+
+</script>
+
+</body>
+</html>
