@@ -14,11 +14,11 @@
 body {
     margin: 0;
     background: #f8dce6;
-    overflow: hidden;
     font-family: Georgia, "Times New Roman", serif;
+    overflow: hidden;
 }
 
-/* PASSWORD SCREEN */
+/* PASSWORD */
 #login {
     position: fixed;
     inset: 0;
@@ -36,21 +36,20 @@ body {
     text-align: center;
     background: #fff7f2;
     border: 2px solid #e7a9bd;
-    border-radius: 18px;
-    box-shadow: 0 10px 35px rgba(120, 50, 75, 0.25);
+    border-radius: 20px;
+    box-shadow: 0 10px 35px rgba(120,50,75,.25);
 }
 
 .login-box h2 {
-    margin: 0 0 8px;
     color: #9b4967;
-    font-size: 27px;
+    margin-bottom: 10px;
 }
 
 .login-box p {
     color: #8a5266;
 }
 
-.login-box input {
+#password {
     width: 100%;
     padding: 13px;
     margin: 15px 0;
@@ -59,16 +58,15 @@ body {
     border: 1px solid #d99ab0;
     border-radius: 10px;
     outline: none;
-    background: #fffafa;
 }
 
 .login-box button {
     padding: 12px 28px;
-    font-size: 16px;
     border: none;
     border-radius: 10px;
     background: #c96b8b;
     color: white;
+    font-size: 16px;
 }
 
 #error {
@@ -76,7 +74,7 @@ body {
     display: none;
 }
 
-/* FLIPBOOK */
+/* BOOK */
 #book {
     width: 100vw;
     height: calc(100vh - 70px);
@@ -85,7 +83,6 @@ body {
 .page {
     background: #fff7ec;
     overflow: hidden;
-    border: 1px solid #e6c4c9;
 }
 
 .page img {
@@ -95,7 +92,7 @@ body {
     display: block;
 }
 
-/* BUTTON BAR */
+/* BUTTONS */
 .controls {
     position: fixed;
     bottom: 0;
@@ -112,25 +109,23 @@ body {
 }
 
 .controls button {
+    padding: 10px 22px;
     border: 1px solid #c96b8b;
     border-radius: 22px;
-    padding: 10px 22px;
-    font-family: Georgia, serif;
-    font-size: 16px;
     background: #fff7f2;
     color: #93435f;
-    box-shadow: 0 3px 8px rgba(120, 50, 75, 0.15);
+    font-size: 16px;
 }
 
 .controls button:active {
-    transform: scale(0.95);
+    transform: scale(.95);
 }
 </style>
 </head>
 
 <body>
 
-<!-- PASSWORD -->
+<!-- PASSWORD SCREEN -->
 <div id="login">
 
     <div class="login-box">
@@ -154,20 +149,16 @@ body {
 </div>
 
 
-<!-- FLIPBOOK -->
+<!-- BOOK -->
 <div id="book"></div>
 
 
 <!-- CONTROLS -->
 <div class="controls">
 
-    <button onclick="previousPage()">
-        ◀ Previous
-    </button>
+    <button onclick="previousPage()">◀ Previous</button>
 
-    <button onclick="nextPage()">
-        Next ▶
-    </button>
+    <button onclick="nextPage()">Next ▶</button>
 
 </div>
 
@@ -177,6 +168,11 @@ body {
 <script>
 
 const PASSWORD = "250502";
+
+let pageFlip = null;
+
+
+/* PASSWORD CHECK */
 
 function unlock() {
 
@@ -197,53 +193,35 @@ function unlock() {
 }
 
 
-const USERNAME = "karthikeyan5318";
-const REPOSITORY = "My-document-";
+/* ENTER KEY */
 
-const book = document.getElementById("book");
+document.getElementById("password").addEventListener(
+    "keydown",
+    function(event) {
 
-let pageFlip;
+        if (event.key === "Enter") {
+            unlock();
+        }
+
+    }
+);
 
 
-function createBook() {
-
-    pageFlip = new St.PageFlip(book, {
-
-        width: 450,
-        height: 650,
-
-        size: "stretch",
-
-        minWidth: 280,
-        maxWidth: 1000,
-
-        minHeight: 400,
-        maxHeight: 1400,
-
-        showCover: true,
-
-        mobileScrollSupport: false,
-
-        maxShadowOpacity: 0.5,
-
-        flippingTime: 900
-
-    });
-
-}
-
+/* LOAD GITHUB IMAGES */
 
 async function loadPages() {
 
+    const book = document.getElementById("book");
+
+    const api =
+    "https://api.github.com/repos/karthikeyan5318/My-document-/contents/";
+
     try {
 
-        const url =
-        `https://api.github.com/repos/${USERNAME}/${REPOSITORY}/contents/`;
-
-        const response = await fetch(url);
+        const response = await fetch(api);
 
         if (!response.ok) {
-            throw new Error("Unable to load files");
+            throw new Error("GitHub error");
         }
 
         const files = await response.json();
@@ -253,11 +231,11 @@ async function loadPages() {
                 file.type === "file" &&
                 /\.(jpg|jpeg|png|webp)$/i.test(file.name)
             )
-            .sort((a, b) =>
+            .sort((a,b) =>
                 a.name.localeCompare(
                     b.name,
                     undefined,
-                    { numeric: true }
+                    {numeric:true}
                 )
             );
 
@@ -265,58 +243,80 @@ async function loadPages() {
         if (images.length === 0) {
 
             book.innerHTML =
-            "<p style='color:#93435f;text-align:center;padding:30px'>No pages found.</p>";
+            "<div style='color:#93435f;text-align:center;padding:30px'>No pages found.</div>";
 
             return;
         }
 
 
-        createBook();
+        pageFlip = new St.PageFlip(book, {
+
+            width: 450,
+            height: 650,
+
+            size: "stretch",
+
+            minWidth: 280,
+            maxWidth: 1000,
+
+            minHeight: 400,
+            maxHeight: 1400,
+
+            showCover: true,
+
+            mobileScrollSupport: false,
+
+            maxShadowOpacity: .5,
+
+            flippingTime: 900
+
+        });
 
 
-        const pageElements = [];
+        const pages = [];
 
 
         images.forEach(file => {
 
             const page =
-            document.createElement("div");
+                document.createElement("div");
 
             page.className = "page";
 
 
-            const image =
-            document.createElement("img");
+            const img =
+                document.createElement("img");
 
-            image.src = file.download_url;
+            img.src = file.download_url;
 
-            image.alt = "Diary page";
+            img.alt = "Diary page";
 
 
-            page.appendChild(image);
+            page.appendChild(img);
 
             book.appendChild(page);
 
-            pageElements.push(page);
+            pages.push(page);
 
         });
 
 
-        pageFlip.loadFromHTML(pageElements);
+        pageFlip.loadFromHTML(pages);
 
     }
 
     catch(error) {
 
         book.innerHTML =
-        "<p style='color:#93435f;text-align:center;padding:30px'>Unable to load diary.</p>";
+        "<div style='color:#93435f;text-align:center;padding:30px'>Unable to load diary.</div>";
 
-        console.error(error);
+        console.log(error);
 
     }
-
 }
 
+
+/* NEXT */
 
 function nextPage() {
 
@@ -326,6 +326,8 @@ function nextPage() {
 
 }
 
+
+/* PREVIOUS */
 
 function previousPage() {
 
