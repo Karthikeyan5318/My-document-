@@ -13,63 +13,79 @@
 
 body {
     margin: 0;
-    background: #222;
+    background: #f8dce6;
     overflow: hidden;
-    font-family: Arial, sans-serif;
+    font-family: Georgia, "Times New Roman", serif;
 }
 
-/* Password screen */
+/* PASSWORD SCREEN */
 #login {
     position: fixed;
     inset: 0;
-    background: #222;
+    background: linear-gradient(135deg, #f8dce6, #f3c5d5);
     display: flex;
-    justify-content: center;
     align-items: center;
+    justify-content: center;
     z-index: 9999;
 }
 
 .login-box {
-    background: #f5ead7;
-    padding: 30px;
-    width: 90%;
-    max-width: 350px;
+    width: 88%;
+    max-width: 360px;
+    padding: 35px 28px;
     text-align: center;
-    border-radius: 12px;
-    box-shadow: 0 5px 25px rgba(0,0,0,0.5);
+    background: #fff7f2;
+    border: 2px solid #e7a9bd;
+    border-radius: 18px;
+    box-shadow: 0 10px 35px rgba(120, 50, 75, 0.25);
 }
 
 .login-box h2 {
-    margin-top: 0;
+    margin: 0 0 8px;
+    color: #9b4967;
+    font-size: 27px;
+}
+
+.login-box p {
+    color: #8a5266;
 }
 
 .login-box input {
     width: 100%;
-    padding: 12px;
+    padding: 13px;
     margin: 15px 0;
     font-size: 18px;
     text-align: center;
+    border: 1px solid #d99ab0;
+    border-radius: 10px;
+    outline: none;
+    background: #fffafa;
 }
 
 .login-box button {
-    padding: 12px 25px;
+    padding: 12px 28px;
     font-size: 16px;
-    cursor: pointer;
+    border: none;
+    border-radius: 10px;
+    background: #c96b8b;
+    color: white;
 }
 
 #error {
-    color: #b00020;
+    color: #b8325d;
     display: none;
 }
 
+/* FLIPBOOK */
 #book {
     width: 100vw;
-    height: 100vh;
+    height: calc(100vh - 70px);
 }
 
 .page {
-    background: #f5ead7;
+    background: #fff7ec;
     overflow: hidden;
+    border: 1px solid #e6c4c9;
 }
 
 .page img {
@@ -77,6 +93,37 @@ body {
     height: 100%;
     object-fit: contain;
     display: block;
+}
+
+/* BUTTON BAR */
+.controls {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 70px;
+    background: #f3c5d5;
+    border-top: 1px solid #d99ab0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 18px;
+    z-index: 1000;
+}
+
+.controls button {
+    border: 1px solid #c96b8b;
+    border-radius: 22px;
+    padding: 10px 22px;
+    font-family: Georgia, serif;
+    font-size: 16px;
+    background: #fff7f2;
+    color: #93435f;
+    box-shadow: 0 3px 8px rgba(120, 50, 75, 0.15);
+}
+
+.controls button:active {
+    transform: scale(0.95);
 }
 </style>
 </head>
@@ -88,7 +135,7 @@ body {
 
     <div class="login-box">
 
-        <h2>🔐 My Diary</h2>
+        <h2>🌸 My Diary 🌸</h2>
 
         <p>Enter Password</p>
 
@@ -109,6 +156,20 @@ body {
 
 <!-- FLIPBOOK -->
 <div id="book"></div>
+
+
+<!-- CONTROLS -->
+<div class="controls">
+
+    <button onclick="previousPage()">
+        ◀ Previous
+    </button>
+
+    <button onclick="nextPage()">
+        Next ▶
+    </button>
+
+</div>
 
 
 <script src="https://cdn.jsdelivr.net/npm/page-flip@2.0.7/dist/js/page-flip.browser.js"></script>
@@ -141,28 +202,35 @@ const REPOSITORY = "My-document-";
 
 const book = document.getElementById("book");
 
-const pageFlip = new St.PageFlip(book, {
+let pageFlip;
 
-    width: 450,
-    height: 650,
 
-    size: "stretch",
+function createBook() {
 
-    minWidth: 280,
-    maxWidth: 1000,
+    pageFlip = new St.PageFlip(book, {
 
-    minHeight: 400,
-    maxHeight: 1400,
+        width: 450,
+        height: 650,
 
-    showCover: true,
+        size: "stretch",
 
-    mobileScrollSupport: false,
+        minWidth: 280,
+        maxWidth: 1000,
 
-    maxShadowOpacity: 0.5,
+        minHeight: 400,
+        maxHeight: 1400,
 
-    flippingTime: 900
+        showCover: true,
 
-});
+        mobileScrollSupport: false,
+
+        maxShadowOpacity: 0.5,
+
+        flippingTime: 900
+
+    });
+
+}
 
 
 async function loadPages() {
@@ -193,27 +261,37 @@ async function loadPages() {
                 )
             );
 
+
         if (images.length === 0) {
 
             book.innerHTML =
-            "<p style='color:white;text-align:center;padding:30px'>No pages found.</p>";
+            "<p style='color:#93435f;text-align:center;padding:30px'>No pages found.</p>";
 
             return;
         }
 
+
+        createBook();
+
+
         const pageElements = [];
+
 
         images.forEach(file => {
 
-            const page = document.createElement("div");
+            const page =
+            document.createElement("div");
 
             page.className = "page";
 
-            const image = document.createElement("img");
+
+            const image =
+            document.createElement("img");
 
             image.src = file.download_url;
 
             image.alt = "Diary page";
+
 
             page.appendChild(image);
 
@@ -223,16 +301,38 @@ async function loadPages() {
 
         });
 
+
         pageFlip.loadFromHTML(pageElements);
 
-    } catch (error) {
+    }
+
+    catch(error) {
 
         book.innerHTML =
-        "<p style='color:white;text-align:center;padding:30px'>Unable to load diary.</p>";
+        "<p style='color:#93435f;text-align:center;padding:30px'>Unable to load diary.</p>";
 
         console.error(error);
 
     }
+
+}
+
+
+function nextPage() {
+
+    if (pageFlip) {
+        pageFlip.flipNext();
+    }
+
+}
+
+
+function previousPage() {
+
+    if (pageFlip) {
+        pageFlip.flipPrev();
+    }
+
 }
 
 </script>
